@@ -1,0 +1,98 @@
+// Copyright, Istrate Alexandru-Daniel, 314CA
+
+În cadrul acestei teme, am avut de implementat un editor de imagini, care să
+modifice fișiere de tip PGM (grayscașe) și PPM (color), așa cum este descris 
+în enunț. Pentru fișierele de tip PGM, am utilizat o matrice normală, alocată
+dinamic, în timp ce, pentru a reține datele imaginilor PPM am folosit o matrice
+de tipul unei structuri, tot alocată dinamic. Structura este alcătuită din trei 
+elemente, corespunzătoare celor 3 canale de culoare ale imaginii. Apoi, prin
+intermediul unei structuri repetitive, am definit meniul în care se citesc
+opțiunile de încărcare, salvare și modificare a pozelor.
+
+Ca mențiuni generale, am utilizat programarea defensivă în cadrul fiecărei 
+opțiuni, verificând dacă alocările au avut loc și dacă fișierele au fost
+deschise corect. Citirea opțiunilor se bazează pe funcțiile fgets și strtok,
+care iau rândul citit de la tastatură și îl împart în secvențe, fie până la 
+spațiu, fie până la caracterul newline(\n).
+
+1. LOAD
+Opțiunea LOAD citește header-ul fișierului dat ca parametru și verifică ce tip
+de fișier se vrea încărcat, iar mai apoi citește pixelii din care este alcătui-
+tă imaginea. Înainte de a citi datele, am eliberat matricile în care rețin 
+componentele imaginii și am închis fișierul de input care este deschis în acest
+moment, dacă acesta există, și am filtrat comentariile care pot apărea în 
+fișier. În funcție de tipul fișierului, am citit pixelii fie în matricea cu 
+elemente întregi, fie în cea cu 3 componente, pentru a ușura lucrul cu fiecare
+dintre cele 3 canale de culoare. În final, am setat să fie selectată toată 
+imaginea, atribuind variabilelor corespunzătoare valorile de minim și maxim.
+
+2. SELECT si SELECT ALL
+Opțiunea SELECT se ocupă de stabilirea zonei asupra căreia să își facă efectul
+orice comandă ce urmează acestei setări. Ea are încorporată și funcția SELECT 
+ALL, aceasta făcând doar ca variabilele să ia valorile din colțurile imaginii.
+Se verifică dacă datele citite sunt corecte atât din punctul de vedere al 
+structurii (să fie numere, nu șiruri de caractere), cât și al logicii (selecția
+să nu depășească marginile imaginii), iar mai apoi, dacă este cazul, se ordo-
+nează crescător indicii, iar la final se atribuie valorile corespunzătoare.
+
+3. CROP
+Opțiunea CROP reduce imaginea la valorile indicate în comandă. Pentru a realiza
+această opțiune, am copiat secvența dorită într-o nouă matrice, am realocat
+matricea inițială și am copiat înapoi poza decupată. Funcția face același lucru
+și pe cazul în care imaginea este coloră, și când este grayscale, doar că dife-
+ră referințele către matricea care conține poza originlă.
+
+4. APPLY
+Comanda APPLY aplică filtrele de imagine date în enunț pe selecția existentă.
+Întâi verific dacă imaginea pe care vreau să aplic filtrele este color, și dacă
+opțiunea este citită corect, apoi verific dacă pixelii pe care vreau să îi 
+modific se află pe marginile pozei, fiind pixeli care nu au un număr suficient 
+de vecini pentru care să se poată aplica kernel-ul. Dacă toate aceste date sunt
+corecte, calculez valorile noilor pixeli, verificând dacă întrec limita de
+intensitate iar, mai apoi, îi salvez într-o matrice temporară. La final, după
+ce filtrul a fost aplicat corespunzător, mut pixelii înapoi în imaginea 
+inițială.
+
+5. HISTOGRAM
+Comanda HISTOGRAM afișează frecvența pe care o are fiecare pixel între 0 și 255
+în imaginea dată. Întâi se verifică dacă datele citite sunt valide și dacă poza
+este una de tip grayscale. Apoi, citesc numărul de steluțe și numărul de 
+bin-uri pe care trebuie să le aibă histograma și determin valoarea maximă pe
+care o poate conține un bin. În final, parcurg din nou vectorul de frecvențe și
+afișez histograma, ținând cont de numărul maxim de steluțe și de bin-urile 
+date.
+
+6. EQUALIZE
+Comanda EQUALIZE se ocupă de egalizarea pixelilor. După verificarea datelor,
+calculez din nou frecvența pixelilor din imaginea inițială și calculez valoarea 
+noilor pixeli conform cu formula oferită. Apoi, ținând cont de aproximarea 
+valorilor reale, se copiază înapoi în imaginea originală noii pixeli.
+
+7. ROTATE
+Comanda ROTATE rotește ori o imagine, ori o secvență de imagine, la un unghi
+dat. Am constatat că cea mai ușoară metodă de a face aceste rotiri ar fi să 
+calculez transpusa matricei, luând colanele de la sfârșit spre final, iar mai 
+apoi să aplic rotirea de 2 sau 3 ori, în funcție de valoarea unghiului. în urma
+citirii datelor, am tratat cazul în care trebuie să rotesc toată imaginea. 
+Am alocat o nouă matrice care să aibă numărul de linii și coloane inversate,
+iar mai apoi am copiat elementele conform constatării pe care am enunțat-o 
+anterior, ținând cont de tipul de imagine pe care lucrez. Apoi, am tratat
+cazul în care se modifică doar o parte de imagine. Am verificat dacă selecția
+curentă este o matrice pătratică, iar dacă această condiție este îndeplinită,
+se aplică rotirea. Pentru asta, am copiat într-o nouă matrice doar valorile din
+selecția curentă și am aplicat același procedeu ca cel de mai sus, pentru o 
+imagine întreagă. La final, am adus înapoi în imaginea inițială secvența rotită.
+
+8. SAVE 
+Comanda SAVE se ocupă de salvarea imaginilor, atât în format binar, cât și 
+în format ASCII. În urma validării datelor, am verificat în ce tip de fișier
+vreau să salvez imaginea și dacă imaginea încărcată în memorie la momentul 
+apelării este color sau grayscale. În funcție de acești parametrii, am deschis
+fișierul de output și am scris datele, având grijă ca pentru fișierele binare
+să convertesc în prealabil din "int" în "unsigned char", pentru a fi scris
+corect fișierul.
+
+9. EXIT
+Optiunea EXIT oprește loop-ul în care se află while-ul și eliberează toate 
+matricile și închide fișierul de input, dacă acesta a rămas deschis în urma
+rulării programului.
